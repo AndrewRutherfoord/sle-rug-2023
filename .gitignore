@@ -4,3 +4,5 @@
 /examples/*.js
 
 target
+
+*.vscode
