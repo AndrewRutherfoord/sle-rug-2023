@@ -64,6 +64,4 @@ syntax IfThenElse = If | IfElse;
 syntax If = "if" "(" BoolExpr ")" "{" Component* subComps "}";
 
 syntax IfElse 
-  = If "else" "{" Component* subComps "}"
-  | If "else" IfThenElse;
-
+  = If "else" "{" Component* subComps "}";
