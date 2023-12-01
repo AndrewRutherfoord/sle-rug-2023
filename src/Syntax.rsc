@@ -7,13 +7,18 @@ extend lang::std::Id;
  * Concrete syntax of QL
  */
 
+keyword MyKeywords = "if" | "else" | "form";
+
 start syntax Form 
-  = "form" Id name "{" Question* questions "}"; 
+  = "form" Id name "{" Component* comps "}"; 
+
+syntax Component = Question | IfThenElse;
 
 // TODO: question, computed question, block, if-then-else, if-then
-syntax Question = NormQuestion | CompQuestion | IfThenElse;
-syntax NormQuestion = (Str Id id ":" Type type);
-syntax CompQuestion = (NormQuestion "=" Expr expr);
+syntax Question 
+  = Str Id id ":" Type type
+  | Str Id id ":" Type type "=" Expr expr
+  ;
 
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
@@ -26,20 +31,24 @@ syntax Expr
   | Expr "-" Expr
   | Expr "*" Expr
   | Expr "/" Expr
-  | Expr "&&" Expr
-  | Expr "||" Expr
-  | "!" Expr
+  | "(" Expr ")"
+  | Int
+  ;
+
+syntax BoolExpr =
+  | "(" BoolExpr ")"
+  | BoolExpr "&&" BoolExpr
+  | BoolExpr "||" BoolExpr
+  | "!" BoolExpr
   | Expr "\>" Expr
   | Expr "\<" Expr
   | Expr "\<=" Expr
   | Expr "\>=" Expr
   | Expr "==" Expr
   | Expr "!=" Expr
-  | "(" Expr ")"
-  | Bool
-  | Int
-  | Str
-  ;
+  | Id
+  | Bool;
+
   
 syntax Type = "boolean" | "integer" | "string";
 
@@ -52,7 +61,9 @@ lexical Bool = "true" | "false";
 
 syntax IfThenElse = If | IfElse;
 
-syntax If = "if" "(" Expr ")" "{" Question* "}";
+syntax If = "if" "(" BoolExpr ")" "{" Component* subComps "}";
 
-syntax IfElse = If "else" "{" Question* "}";
+syntax IfElse 
+  = If "else" "{" Component* subComps "}"
+  | If "else" IfThenElse;
 
