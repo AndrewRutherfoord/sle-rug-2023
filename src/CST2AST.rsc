@@ -4,6 +4,9 @@ import Syntax;
 import AST;
 
 import ParseTree;
+import String;
+import Boolean;
+// import IO;
 
 /*
  * Implement a mapping from concrete syntax trees (CSTs) to abstract syntax trees (ASTs)
@@ -17,71 +20,78 @@ import ParseTree;
 
 AForm cst2ast(start[Form] f) = cst2ast(f.top);
 
-AForm cst2ast(f:(Form)`form <Id id> <Component* cs>`) 
-  = form(cst2ast(id), [ cst2ast(c) | Component c <- cs ], src=f.src);
+AForm cst2ast(f:(Form)`form <Id x> <Component* cs>`) 
+  = form(cst2ast((Expr)`<Id x>`), [ cst2ast(c) | Component c <- cs ], src=f.src);
 
-AComponent cst2ast(c:(Component)`<Question q>`) {
-  return cst2ast(q);
-}
-
-AComponent cst2ast(c:(Component)`<IfThenElse d>`) {
-  return cst2ast(d);
-}
-
-AComponent cst2ast(Question q) {
-  switch (q) {
-    case (Question) `<Str q> <Id i> <Type t>`
-      : return question(cst2ast(q), cst2ast(i), cst2ast(t), src=q.src);
-    case (Question) `<Str q> <Id i> <Type t> <Expr e>`
-      : return question(cst2ast(q), cst2ast(i), cst2ast(t), cst2ast(e), src=q.src);
-      
-    default: throw "Unhandled expression: <q>";
+AComponent cst2ast(Component c) {
+  switch (c) {
+    case (Component)`<Question q>`: return component(cst2ast(q));
+    case (Component)`<Conditional cnd>`: return component(cst2ast(cnd));
+    
+    default: throw "Unhandled component: <c>";
   }
 }
 
-AComponent cst2ast(c:(IfThenElse)`if ( <BoolExpr be> ) { <Component* cs> }`) {
-  return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=c.src);
+AQuestion cst2ast(Question q) {
+  switch (q) {
+    case (Question)`<Expr s> <Expr id> : <Type t>`: 
+      return question(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), src=q.src);
+    case (Question)`<Expr s> <Expr id> : <Type t> = <Expr e>`: 
+      return question(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), cst2ast(e), src=q.src);
+
+    default: throw "Unhandled question: <q>";
+  }
 }
 
-AComponent cst2ast(c:(IfThenElse)`if ( <BoolExpr be> ) {<Component* cs>} else {<Component* cs>}`) {
-  return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=c.src);
+AConditional cst2ast(Conditional cnd) {
+  switch (cnd) {
+    case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } `:
+      return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=cnd.src);
+    case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } else { <Component* cs> }`:
+      return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=cnd.src);
+
+    default: throw "Unhandled conditional: <cnd>";
+  }
+}
+
+ABoolExpr cst2ast(BoolExpr be) {
+  switch (be) {
+    case (BoolExpr)`<Bool b>`                        : return boolean(fromString("<b>"), src=b.src); 
+    case (BoolExpr)`(<BoolExpr bex>)`                : return parentheses(cst2ast(bex), src=be.src);
+    case (BoolExpr)`<BoolExpr lhs> && <BoolExpr rhs>`: return and(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<BoolExpr lhs> || <BoolExpr rhs>`: return or(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`! <BoolExpr bex>`                : return not(cst2ast(bex), src=be.src);
+    case (BoolExpr)`<Expr lhs> \> <Expr rhs>`        : return gt(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<Expr lhs> \< <Expr rhs>`        : return lt(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<Expr lhs> \>= <Expr rhs>`       : return geq(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<Expr lhs> \<= <Expr rhs>`       : return leq(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<Expr lhs> == <Expr rhs>`        : return eq(cst2ast(lhs), cst2ast(rhs), src=be.src);
+    case (BoolExpr)`<Expr lhs> != <Expr rhs>`        : return neq(cst2ast(lhs), cst2ast(rhs), src=be.src);
+  
+    default: throw "Unhandled boolean expression: <be>";
+  }
 }
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`               : return ref(id("<x>", src=x.src), src=x.src);
-    case (Expr)`<Int n>`              : return cst2ast(n);
-    case (Expr)`<Expr l> + <Expr r>`  : return add(cst2ast(l), cst2ast(r), src=e.src);
-    case (Expr)`<Expr l> - <Expr r>`  : return sub(cst2ast(l), cst2ast(r), src=e.src);
-    case (Expr)`<Expr l> * <Expr r>`  : return mul(cst2ast(l), cst2ast(r), src=e.src);
-    case (Expr)`<Expr l> / <Expr r>`  : return div(cst2ast(l), cst2ast(r), src=e.src);
-    case (Expr)`(<Expr e>)`           : return cst2ast(e);
+    case (Expr)`<Int i>`                : return intgr(toInt("<i>"), src=i.src);
+    case (Expr)`<Expr lhs> + <Expr rhs>`: return add(cst2ast(lhs), cst2ast(rhs), src=e.src);
+    case (Expr)`<Expr lhs> - <Expr rhs>`: return sub(cst2ast(lhs), cst2ast(rhs), src=e.src);
+    case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e.src);
+    case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e.src);
+    case (Expr)`(<Expr ex>)`            : return inBetweenParantherses(cst2ast(ex), src=e.src);
+    case (Expr)`<Id x>`                 : return ref(id("<x>"), src=x@\loc);
+    case (Expr)`<Str s>`                : return strg("<s>", src=s.src);
     
     default: throw "Unhandled expression: <e>";
   }
 }
 
-ABoolExpr cst2ast(ABoolExpr e) {
-  switch (e) {
-    case (ABoolExpr)`(<BoolExpr e>)`                : return cst2ast(e);
-    case (ABoolExpr)`<Bool b>`                      : return cst2ast(b);
-    case (ABoolExpr)`<Id x>`                        : return ref(id("<x>", src=x.src), src=x.src);
-    case (ABoolExpr)`<BoolExpr l> && <BoolExpr r>`  : return and(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<BoolExpr l> || <BoolExpr r>`  : return or(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`! <BoolExpr e>`                : return not(cst2ast(e), src=e.src);
-    case (ABoolExpr)`<Expr l> \< <Expr r>`          : return lt(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<Expr l> \> <Expr r>`          : return gt(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<Expr l> \<= <Expr r>`         : return leq(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<Expr l> \>= <Expr r>`         : return geq(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<Expr l> == <Expr r>`          : return eq(cst2ast(l), cst2ast(r), src=e.src);
-    case (ABoolExpr)`<Expr l> != <Expr r>`          : return neq(cst2ast(l), cst2ast(r), src=e.src);
-
-    default: throw "Unhandled expression: <e>";
-  } 
-}
-
 AType cst2ast(Type t) {
-  return t("<t>", src=t.src);
+    switch (t) {
+        case (Type)`boolean`: return boolean(src=t@\loc);
+        case (Type)`integer`: return integer(src=t@\loc);
+        case (Type)`string`: return string(src=t@\loc);
+        default: throw "Unhandled type: <t>";
+    }
 }
-
-AStr cst2ast(Str string) = str("<s>", src=s.src);

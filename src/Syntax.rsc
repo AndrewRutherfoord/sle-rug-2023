@@ -12,42 +12,56 @@ keyword MyKeywords = "if" | "else" | "form";
 start syntax Form 
   = "form" Id name "{" Component* comps "}"; 
 
-syntax Component = Question | IfThenElse;
+syntax Component = Question | Conditional;
 
-// TODO: question, computed question, block, if-then-else, if-then
 syntax Question 
   = Str Id id ":" Type type
   | Str Id id ":" Type type "=" Expr expr
   ;
 
-
-// TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)
-// Think about disambiguation using priorities and associativity
-// and use C/Java style precedence rules (look it up on the internet)
+syntax Conditional
+  = "if" "(" BoolExpr ")" "{" Component* subComps "}"
+  | "if" "(" BoolExpr ")" "{" Component* subComps "}" "else" "{" Component* subComps "}"
+  ;
 
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
-  | Expr "+" Expr
-  | Expr "-" Expr
-  | Expr "*" Expr
-  | Expr "/" Expr
+  > left (
+    mul: Expr "*" Expr
+  | div: Expr "/" Expr
+  )
+  > left (
+    add: Expr "+" Expr
+  | sub: Expr "-" Expr
+  )
   | "(" Expr ")"
   | Int
   ;
 
 syntax BoolExpr =
   | "(" BoolExpr ")"
-  | BoolExpr "&&" BoolExpr
-  | BoolExpr "||" BoolExpr
-  | "!" BoolExpr
-  | Expr "\>" Expr
-  | Expr "\<" Expr
-  | Expr "\<=" Expr
-  | Expr "\>=" Expr
-  | Expr "==" Expr
+  > non-assoc (
+    not: "!" BoolExpr
+  )
+  > non-assoc (
+    lt: Expr "\<" Expr
+  | gt: Expr "\>" Expr
+  | seq: Expr "\<=" Expr
+  | geq: Expr "\>=" Expr
+  )
+  > left (
+    Expr "==" Expr
   | Expr "!=" Expr
+  )
+  > left (
+    and: BoolExpr "&&" BoolExpr
+  )
+  > left (
+    or: BoolExpr "||" BoolExpr
+  )
   | Id
-  | Bool;
+  | Bool
+  ;
 
   
 syntax Type = "boolean" | "integer" | "string";
@@ -58,10 +72,3 @@ lexical Int
   = [0-9]+;
 
 lexical Bool = "true" | "false";
-
-syntax IfThenElse = If | IfElse;
-
-syntax If = "if" "(" BoolExpr ")" "{" Component* subComps "}";
-
-syntax IfElse 
-  = If "else" "{" Component* subComps "}";
