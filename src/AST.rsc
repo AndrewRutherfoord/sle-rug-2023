@@ -27,7 +27,8 @@ data AConditional(loc src = |tmp:///|)
   ;
 
 data ABoolExpr(loc src = |tmp:///|)
-  = boolean(bool boolean)
+  = bref(AId id)
+  | boolean(bool boolean)
   | parentheses(ABoolExpr expr)
   | and(ABoolExpr bLeft, ABoolExpr bRight)
   | or(ABoolExpr bLeft, ABoolExpr bRight)

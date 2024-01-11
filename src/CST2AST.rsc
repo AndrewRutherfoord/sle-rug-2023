@@ -36,9 +36,9 @@ AComponent cst2ast(Component c) {
 AQuestion cst2ast(Question q) {
   switch (q) {
     case (Question)`<Str s> <Id id> : <Type t>`: 
-      return simpleQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), src=q.src);
+      return simpleQuestion(cst2ast((Expr)`<Str s>`), cst2ast((Expr)`<Id id>`), cst2ast(t), src=q.src);
     case (Question)`<Str s> <Id id> : <Type t> = <Expr e>`: 
-      return computedQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), cst2ast(e), src=q.src);
+      return computedQuestion(cst2ast((Expr)`<Str s>`), cst2ast((Expr)`<Id id>`), cst2ast(t), cst2ast(e), src=q.src);
 
     default: throw "Unhandled question: <q>";
   }
@@ -57,6 +57,7 @@ AConditional cst2ast(Conditional cnd) {
 
 ABoolExpr cst2ast(BoolExpr be) {
   switch (be) {
+    case (BoolExpr)`<Id x>`                          : return bref(id("<x>"), src=be.src);
     case (BoolExpr)`<Bool b>`                        : return boolean(fromString("<b>"), src=b.src); 
     case (BoolExpr)`(<BoolExpr bex>)`                : return parentheses(cst2ast(bex), src=be.src);
     case (BoolExpr)`<BoolExpr lhs> && <BoolExpr rhs>`: return and(cst2ast(lhs), cst2ast(rhs), src=be.src);
