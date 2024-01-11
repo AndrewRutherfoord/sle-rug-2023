@@ -30,6 +30,7 @@ syntax Expr
   = Id \ "true" \ "false" // true/false are reserved keywords.
   | intgr: Int i
   | "(" Expr ")"
+  | strg: Str s
   > left (
     mul: Expr "*" Expr
   | div: Expr "/" Expr

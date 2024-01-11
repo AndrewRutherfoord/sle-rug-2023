@@ -20,8 +20,9 @@ import Boolean;
 
 AForm cst2ast(start[Form] f) = cst2ast(f.top);
 
-AForm cst2ast(f:(Form)`form <Id x> <Component* cs>`) 
-  = form("<f.name>", [ cst2ast(c) | Component c <- cs ], src=f.src);
+AForm cst2ast(Form f) {
+  return form("<f.name>", [ cst2ast(c) | Component c <- f.comps ], src=f.src);
+}
 
 AComponent cst2ast(Component c) {
   switch (c) {
@@ -34,9 +35,9 @@ AComponent cst2ast(Component c) {
 
 AQuestion cst2ast(Question q) {
   switch (q) {
-    case (Question)`<Expr s> <Expr id> : <Type t>`: 
+    case (Question)`<Str s> <Id id> : <Type t>`: 
       return simpleQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), src=q.src);
-    case (Question)`<Expr s> <Expr id> : <Type t> = <Expr e>`: 
+    case (Question)`<Str s> <Id id> : <Type t> = <Expr e>`: 
       return computedQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), cst2ast(e), src=q.src);
 
     default: throw "Unhandled question: <q>";
@@ -45,7 +46,7 @@ AQuestion cst2ast(Question q) {
 
 AConditional cst2ast(Conditional cnd) {
   switch (cnd) {
-    case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } `:
+    case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> }`:
       return ifThen(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=cnd.src);
     case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } else { <Component* cs> }`:
       return ifThenElse(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=cnd.src);
@@ -80,7 +81,7 @@ AExpr cst2ast(Expr e) {
     case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e.src);
     case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e.src);
     case (Expr)`(<Expr ex>)`            : return inBetweenParantherses(cst2ast(ex), src=e.src);
-    case (Expr)`<Id x>`                 : return ref(id("<x>"), src=x@\loc);
+    case (Expr)`<Id x>`                 : return ref(id("<x>"), src=x.src);
     case (Expr)`<Str s>`                : return strg("<s>", src=s.src);
     
     default: throw "Unhandled expression: <e>";
@@ -89,9 +90,9 @@ AExpr cst2ast(Expr e) {
 
 AType cst2ast(Type t) {
     switch (t) {
-        case (Type)`boolean`: return boolean(src=t@\loc);
-        case (Type)`integer`: return integer(src=t@\loc);
-        case (Type)`string`: return string(src=t@\loc);
+        case (Type)`boolean`: return boolean(src=t.src);
+        case (Type)`integer`: return integer(src=t.src);
+        case (Type)`string`: return string(src=t.src);
         default: throw "Unhandled type: <t>";
     }
 }
