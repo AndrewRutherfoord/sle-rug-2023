@@ -12,20 +12,24 @@ keyword MyKeywords = "if" | "else" | "form";
 start syntax Form 
   = "form" Id name "{" Component* comps "}"; 
 
-syntax Component = Question | Conditional;
+syntax Component 
+  = questionComponent: Question
+  | conditionalComponent: Conditional;
 
 syntax Question 
-  = Str Id id ":" Type type
-  | Str Id id ":" Type type "=" Expr expr
+  = simpleQuestion: Str question Id id ":" Type type
+  | computedQuestion: Str question Id id ":" Type type "=" Expr expr
   ;
 
 syntax Conditional
-  = "if" "(" BoolExpr ")" "{" Component* subComps "}"
-  | "if" "(" BoolExpr ")" "{" Component* subComps "}" "else" "{" Component* subComps "}"
+  = ifThen: "if" "(" BoolExpr cond ")" "{" Component* subComps "}"
+  | ifThenElse: "if" "(" BoolExpr cond ")" "{" Component* thenPart "}" "else" "{" Component* elsePart "}"
   ;
 
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
+  | intgr: Int i
+  | "(" Expr ")"
   > left (
     mul: Expr "*" Expr
   | div: Expr "/" Expr
@@ -34,11 +38,11 @@ syntax Expr
     add: Expr "+" Expr
   | sub: Expr "-" Expr
   )
-  | "(" Expr ")"
-  | Int
   ;
 
-syntax BoolExpr =
+syntax BoolExpr
+  = Id \ "true" \ "false"
+  | bln: Bool b
   | "(" BoolExpr ")"
   > non-assoc (
     not: "!" BoolExpr
@@ -46,21 +50,15 @@ syntax BoolExpr =
   > non-assoc (
     lt: Expr "\<" Expr
   | gt: Expr "\>" Expr
-  | seq: Expr "\<=" Expr
+  | leq: Expr "\<=" Expr
   | geq: Expr "\>=" Expr
   )
   > left (
     Expr "==" Expr
   | Expr "!=" Expr
   )
-  > left (
-    and: BoolExpr "&&" BoolExpr
-  )
-  > left (
-    or: BoolExpr "||" BoolExpr
-  )
-  | Id
-  | Bool
+  > left (and: BoolExpr "&&" BoolExpr)
+  > left (or: BoolExpr "||" BoolExpr)
   ;
 
   
@@ -68,7 +66,6 @@ syntax Type = "boolean" | "integer" | "string";
 
 lexical Str =  "\"" ([a-zA-Z0-9?\ :])* "\"";
 
-lexical Int 
-  = [0-9]+;
+lexical Int = [0-9]+;
 
 lexical Bool = "true" | "false";

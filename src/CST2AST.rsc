@@ -21,12 +21,12 @@ import Boolean;
 AForm cst2ast(start[Form] f) = cst2ast(f.top);
 
 AForm cst2ast(f:(Form)`form <Id x> <Component* cs>`) 
-  = form(cst2ast((Expr)`<Id x>`), [ cst2ast(c) | Component c <- cs ], src=f.src);
+  = form("<f.name>", [ cst2ast(c) | Component c <- cs ], src=f.src);
 
 AComponent cst2ast(Component c) {
   switch (c) {
-    case (Component)`<Question q>`: return component(cst2ast(q));
-    case (Component)`<Conditional cnd>`: return component(cst2ast(cnd));
+    case (Component)`<Question q>`: return questionComponent(cst2ast(q));
+    case (Component)`<Conditional cnd>`: return conditionalComponent(cst2ast(cnd));
     
     default: throw "Unhandled component: <c>";
   }
@@ -35,9 +35,9 @@ AComponent cst2ast(Component c) {
 AQuestion cst2ast(Question q) {
   switch (q) {
     case (Question)`<Expr s> <Expr id> : <Type t>`: 
-      return question(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), src=q.src);
+      return simpleQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), src=q.src);
     case (Question)`<Expr s> <Expr id> : <Type t> = <Expr e>`: 
-      return question(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), cst2ast(e), src=q.src);
+      return computedQuestion(cst2ast((Expr)`<Expr s>`), cst2ast((Expr)`<Expr id>`), cst2ast(t), cst2ast(e), src=q.src);
 
     default: throw "Unhandled question: <q>";
   }
@@ -46,9 +46,9 @@ AQuestion cst2ast(Question q) {
 AConditional cst2ast(Conditional cnd) {
   switch (cnd) {
     case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } `:
-      return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=cnd.src);
+      return ifThen(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=cnd.src);
     case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } else { <Component* cs> }`:
-      return conditional(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=cnd.src);
+      return ifThenElse(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=cnd.src);
 
     default: throw "Unhandled conditional: <cnd>";
   }

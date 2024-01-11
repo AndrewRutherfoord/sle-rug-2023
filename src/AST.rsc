@@ -8,22 +8,22 @@ module AST
  */
 
 data AForm(loc src = |tmp:///|)
-  = form(AExpr id, list[AComponent] components)
+  = form(str name, list[AComponent] components)
   ; 
 
 data AComponent(loc src = |tmp:///|)
-  = component(AQuestion question)
-  | component(AConditional conditional)
+  = questionComponent(AQuestion question)
+  | conditionalComponent(AConditional conditional)
   ;
 
 data AQuestion(loc src = |tmp:///|)
-  = question(AExpr text, AExpr id, AType t)
-  | question(AExpr text, AExpr id, AType t, AExpr expr)
+  = simpleQuestion(AExpr text, AExpr id, AType t)
+  | computedQuestion(AExpr text, AExpr id, AType t, AExpr expr)
   ; 
 
 data AConditional(loc src = |tmp:///|)
-  = conditional(ABoolExpr, list[AComponent] components)
-  | conditional(ABoolExpr, list[AComponent] components, list[AComponent] elseComponents)
+  = ifThen(ABoolExpr, list[AComponent] components)
+  | ifThenElse(ABoolExpr, list[AComponent] components, list[AComponent] elseComponents)
   ;
 
 data ABoolExpr(loc src = |tmp:///|)
@@ -41,13 +41,13 @@ data ABoolExpr(loc src = |tmp:///|)
   ;
 
 data AExpr(loc src = |tmp:///|)
-  = intgr(int integer)
-  | add(AExpr left, AExpr right)
-  | sub(AExpr left, AExpr right)
+  = ref(AId id)
   | mul(AExpr left, AExpr right)
   | div(AExpr left, AExpr right)
+  | add(AExpr left, AExpr right)
+  | sub(AExpr left, AExpr right)
   | inBetweenParantherses(AExpr expr)
-  | ref(AId id)
+  | intgr(int integer)
   | strg(str string)
   ;
 

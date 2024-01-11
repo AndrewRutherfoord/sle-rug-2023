@@ -3,7 +3,7 @@ module Resolve
 import AST;
 
 /*
- * Name resolution for QL
+ * Name resolution for Q
  */ 
 
 
