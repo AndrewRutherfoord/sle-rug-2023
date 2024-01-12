@@ -3,7 +3,6 @@ module Check
 import AST;
 import Resolve;
 import Message; // see standard library
-import CST2AST;
 
 data Type
   = tint()
@@ -43,7 +42,7 @@ TEnv collect(AForm f) {
   	case simpleQuestion(strg(str label), ref(AId id, src = loc u), AType varType, src = loc q):
   		tenv = tenv + <q, id.name, "<label>", ATypeToDataType(varType)>;
     case computedQuestion(strg(str label), ref(AId id, src = loc u), AType varType, AExpr e, src = loc q):
-    	tenv = tenv + <q, id.name, "<label>", ATypeToDataType(varType)>; 
+    	tenv = tenv + <q, id.name, "<label>", ATypeToDataType(varType)>;
   }
   return tenv;
 }
@@ -87,16 +86,30 @@ set[Message] checkQuestionAndExprType(AExpr e, Type t, TEnv tenv, UseDef useDef)
 	return msgs;
 }
 
+set[Message] checkBoolQuestionAndExprType(ABoolExpr e, Type t, TEnv tenv, UseDef useDef) {
+	msgs = {};
+		msgs += check(e, tenv, useDef);
+		typeOfExpr = typeOf(e, tenv, useDef);
+		if (typeOfExpr != t) {
+			msgs += { error("The expression type [\"<typeToStr(typeOfExpr)>\"] should match the question type [\"<typeToStr(t)>\"]", e.src) };
+		}
+	return msgs;
+}
+
+// WORKS!!!
 // Produce an error if there are declared questions with the same name but different types.
 set[Message] checkName(str name, AId id, Type t, AType var, loc def) {
 	if (name == id.name) {
 		if (t != ATypeToDataType(var)) {
 			return {error("Another question has the same name but a different type", def)};
-		}
+		} else if (t == ATypeToDataType(var)) {
+      return {warning("There is another question with the same name", def)};
+    }
 	}
 	return {};
 }
 
+// WORKS!!!
 // If there are duplicate labels they should trigger a warning.
 set[Message] checkLabel(str label, str sq, loc def, loc qloc) {
     if (label == sq && def != qloc) {
@@ -112,7 +125,7 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
     case ifThenElse(ABoolExpr cond, list[AComponent] thenpart, list[AComponent] elsepart): { 
 			//Check whether the condition is of type boolean and,
 			//whether the expression contains compatible types
-  			// result += checkQuestionAndExprType(cond, tbool(), tenv, useDef);
+  			msgs += checkBoolQuestionAndExprType(cond, tbool(), tenv, useDef);
   			//Recursively check all questions within the if and else construct for errors/warnings
   			for (AComponent component <- c.components + c.elseComponents) {
   				msgs += check(component, tenv, useDef);
@@ -121,7 +134,7 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
 		case ifThen(ABoolExpr cond, list[AComponent] components): {
 			//Check whether the condition is of type boolean and,
 			//whether the expression contains compatible types
-			// result += checkQuestionAndExprType(cond, tbool(), tenv, useDef);
+			msgs += checkBoolQuestionAndExprType(cond, tbool(), tenv, useDef);
 			//Recursively check all questions within the if construct for errors/warnings
   			for (AComponent component <- c.components) {
   				msgs += check(component, tenv, useDef);
@@ -132,8 +145,8 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
   return msgs;
 }
 
-// - produce an error if there are declared questions with the same name but different types.
-// - duplicate labels should trigger a warning 
+// - produce an error if there are declared questions with the same name but different types. DONE
+// - duplicate labels should trigger a warning DONE
 // - the declared type computed questions should match the type of the expression.
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
@@ -296,7 +309,6 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
       return tint();
     case strg(str s):
       return tstr();
-    // etc.
   }
   return tunknown(); 
 }
