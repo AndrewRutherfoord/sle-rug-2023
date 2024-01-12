@@ -57,7 +57,7 @@ AConditional cst2ast(Conditional cnd) {
 
 ABoolExpr cst2ast(BoolExpr be) {
   switch (be) {
-    case (BoolExpr)`<Id x>`                          : return bref(id("<x>"), src=be.src);
+    case (BoolExpr)`<Id x>`                          : return bref(id("<x>", src=x.src), src=be.src);
     case (BoolExpr)`<Bool b>`                        : return boolean(fromString("<b>"), src=b.src); 
     case (BoolExpr)`(<BoolExpr bex>)`                : return parentheses(cst2ast(bex), src=be.src);
     case (BoolExpr)`<BoolExpr lhs> && <BoolExpr rhs>`: return and(cst2ast(lhs), cst2ast(rhs), src=be.src);

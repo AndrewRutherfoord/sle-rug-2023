@@ -21,3 +21,20 @@ First 2 steps from `Create Parse Tree for File`. Then:
 import CST2AST;
 ast = cst2ast(t);
 ```
+
+## Checking
+
+```
+import IDE;
+import ParseTree;
+import AST;
+import CST2AST;
+import Syntax;
+
+t = parse(#start[Form], |project://sle-rug/examples/tax.myql|, allowAmbiguity=true);
+
+ast = cst2ast(t);
+
+check(ast);
+
+```

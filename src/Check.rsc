@@ -3,6 +3,7 @@ module Check
 import AST;
 import Resolve;
 import Message; // see standard library
+import IO;
 
 data Type
   = tint()
@@ -267,6 +268,9 @@ set[Message] check(ABoolExpr be, TEnv tenv, UseDef useDef) {
 
 Type typeOf(ABoolExpr be, TEnv tenv, UseDef useDef) {
   switch (be) {
+    case parentheses(e):
+      { bprintln("parentheses");
+        return typeOf(e, tenv, useDef);}
     case and(lhs, rhs):
       return tbool();
     case or(lhs, rhs):
@@ -292,7 +296,10 @@ Type typeOf(ABoolExpr be, TEnv tenv, UseDef useDef) {
 }
 
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
+
   switch (e) {
+    case inBetweenParantherses(se):
+      return typeOf(se, tenv, useDef);
     case ref(id(_, src = loc u)):  
       if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
         return t;
