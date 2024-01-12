@@ -80,7 +80,7 @@ set[Message] checkQuestionAndExprType(AExpr e, Type t, TEnv tenv, UseDef useDef)
 	msgs = {};
 		msgs += check(e, tenv, useDef);
 		typeOfExpr = typeOf(e, tenv, useDef);
-		if (typeOfExpr != t) {
+		if (typeOfExpr != t && typeOfExpr != tunknown()) {
 			msgs += { error("The expression type [\"<typeToStr(typeOfExpr)>\"] should match the question type [\"<typeToStr(t)>\"]", e.src) };
 		}
 	return msgs;
@@ -91,9 +91,11 @@ set[Message] checkBoolQuestionAndExprType(ABoolExpr e, TEnv tenv, UseDef useDef)
 		msgs += check(e, tenv, useDef);
 		typeOfExpr = typeOf(e, tenv, useDef);
     bprintln(typeOfExpr);
-		if (typeOfExpr != tbool()) {
+		if (typeOfExpr != tbool() && typeOfExpr != tunknown()) {
 			msgs += { error("The expression type [\"<typeToStr(typeOfExpr)>\"] should match the question type [\"<typeToStr(tbool())>\"]", e.src) };
-		}
+		} else if (typeOfExpr == tunknown()) {
+      msgs += { warning("The expression type is unknown", e.src) };
+    }
 	return msgs;
 }
 
@@ -191,10 +193,12 @@ public set[Message] checkBoolTypes(ABoolExpr lhs, ABoolExpr rhs, TEnv tenv, UseD
     set[Message] msgs = {};
     msgs += check(lhs, tenv, useDef);
     msgs += check(rhs, tenv, useDef);
-    if (typeOf(lhs, tenv, useDef) != t) {
+    typeLeft = typeOf(lhs, tenv, useDef);
+    typeRight = typeOf(rhs, tenv, useDef);
+    if (typeLeft != t && typeLeft != tunknown()) {
         msgs += { error("Incompatible type error", lhs.src) };
     }
-    if (typeOf(rhs, tenv, useDef) != t) {
+    if (typeRight != t && typeRight != tunknown()) {
         msgs += { error("Incompatible type error", rhs.src) };
     }
     return msgs;
@@ -204,10 +208,12 @@ public set[Message] checkTypes(AExpr lhs, AExpr rhs, TEnv tenv, UseDef useDef, T
     set[Message] msgs = {};
     msgs += check(lhs, tenv, useDef);
     msgs += check(rhs, tenv, useDef);
-    if (typeOf(lhs, tenv, useDef) != t) {
+    typeLeft = typeOf(lhs, tenv, useDef);
+    typeRight = typeOf(rhs, tenv, useDef);
+    if (typeLeft != t && typeLeft != tunknown()) {
         msgs += { error("Incompatible type error", lhs.src) };
     }
-    if (typeOf(rhs, tenv, useDef) != t) {
+    if (typeRight != t && typeRight != tunknown()) {
         msgs += { error("Incompatible type error", rhs.src) };
     }
     return msgs;
