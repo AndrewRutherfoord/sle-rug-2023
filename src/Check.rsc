@@ -64,13 +64,12 @@ set[Message] check(AForm f) {
 
 set[Message] check(AComponent c, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  
   switch (c) {
     case questionComponent(q): {
       msgs += check(q, tenv, useDef);
     }
-    case conditionalComponent(c): {
-      msgs += check(c, tenv, useDef);
+    case conditionalComponent(cc): {
+      msgs += check(cc, tenv, useDef);
     }
   }
   
@@ -87,12 +86,13 @@ set[Message] checkQuestionAndExprType(AExpr e, Type t, TEnv tenv, UseDef useDef)
 	return msgs;
 }
 
-set[Message] checkBoolQuestionAndExprType(ABoolExpr e, Type t, TEnv tenv, UseDef useDef) {
+set[Message] checkBoolQuestionAndExprType(ABoolExpr e, TEnv tenv, UseDef useDef) {
 	msgs = {};
 		msgs += check(e, tenv, useDef);
 		typeOfExpr = typeOf(e, tenv, useDef);
-		if (typeOfExpr != t) {
-			msgs += { error("The expression type [\"<typeToStr(typeOfExpr)>\"] should match the question type [\"<typeToStr(t)>\"]", e.src) };
+    bprintln(typeOfExpr);
+		if (typeOfExpr != tbool()) {
+			msgs += { error("The expression type [\"<typeToStr(typeOfExpr)>\"] should match the question type [\"<typeToStr(tbool())>\"]", e.src) };
 		}
 	return msgs;
 }
@@ -124,9 +124,10 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
   
   switch (c) {
     case ifThenElse(ABoolExpr cond, list[AComponent] thenpart, list[AComponent] elsepart): { 
+
 			//Check whether the condition is of type boolean and,
 			//whether the expression contains compatible types
-  			msgs += checkBoolQuestionAndExprType(cond, tbool(), tenv, useDef);
+  			msgs += checkBoolQuestionAndExprType(cond, tenv, useDef);
   			//Recursively check all questions within the if and else construct for errors/warnings
   			for (AComponent component <- c.components + c.elseComponents) {
   				msgs += check(component, tenv, useDef);
@@ -135,7 +136,7 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
 		case ifThen(ABoolExpr cond, list[AComponent] components): {
 			//Check whether the condition is of type boolean and,
 			//whether the expression contains compatible types
-			msgs += checkBoolQuestionAndExprType(cond, tbool(), tenv, useDef);
+			msgs += checkBoolQuestionAndExprType(cond, tenv, useDef);
 			//Recursively check all questions within the if construct for errors/warnings
   			for (AComponent component <- c.components) {
   				msgs += check(component, tenv, useDef);
@@ -269,41 +270,41 @@ set[Message] check(ABoolExpr be, TEnv tenv, UseDef useDef) {
 Type typeOf(ABoolExpr be, TEnv tenv, UseDef useDef) {
   switch (be) {
     case parentheses(e):
-      { bprintln("parentheses");
-        return typeOf(e, tenv, useDef);}
-    case and(lhs, rhs):
+        return typeOf(e, tenv, useDef);
+    case and(_, _):
       return tbool();
-    case or(lhs, rhs):
+    case or(_, _):
       return tbool();
-    case not(e):
+    case not(_):
       return tbool();
-    case gt(lhs, rhs):
+    case gt(_, _):
       return tbool();
-    case lt(lhs, rhs):
+    case lt(_, _):
       return tbool();
-    case geq(lhs, rhs):
+    case geq(_, _):
       return tbool();
-    case leq(lhs, rhs):
+    case leq(_, _):
       return tbool();
-    case eq(lhs, rhs):
+    case eq(_, _):
       return tbool();
-    case neq(lhs, rhs):
+    case neq(_, _):
       return tbool();
-    case boolean(bool b):
+    case boolean(bool _):
       return tbool();
+    case bref(id(_, src = loc u)):  
+      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv)
+        return t;
   }
   return tunknown();
 }
 
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
-
   switch (e) {
     case inBetweenParantherses(se):
       return typeOf(se, tenv, useDef);
     case ref(id(_, src = loc u)):  
-      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
+      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv)
         return t;
-      }
     case mul(lhs, rhs):
       return tint();
     case div(lhs, rhs):
