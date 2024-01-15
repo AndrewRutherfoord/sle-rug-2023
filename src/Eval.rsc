@@ -2,6 +2,7 @@ module Eval
 
 import AST;
 import Resolve;
+import IO;
 
 /*
  * Implement big-step semantics for QL
@@ -46,6 +47,7 @@ VEnv initialEnv(AForm f) {
   	case simpleQuestion(strg(str label), ref(AId id, src = loc u), AType varType, src = loc q):
   		venv = venv + (id.name: defaultValue(varType));
     case computedQuestion(strg(str label), ref(AId id, src = loc u), AType varType, AExpr e, src = loc q):
+      // TODO: Needs to be evaluated??
     	venv = venv + (id.name: defaultValue(varType));
   }
   return venv;
@@ -61,21 +63,77 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return (); 
+  visit (f) {
+    case AQuestion q : venv = eval(q, inp, venv);
+    case AConditional c : venv = eval(c, inp, venv);
+  }
+  return venv;
+}
+
+VEnv eval(AConditional c, Input inp, VEnv venv) {
+  // TODO
+  return venv; 
 }
 
 VEnv eval(AQuestion q, Input inp, VEnv venv) {
   // evaluate conditions for branching,
   // evaluate inp and computed questions to return updated VEnv
-  return (); 
+  switch (q) {
+    case simpleQuestion(strg(str label), ref(AId id, src = loc u), AType varType, src = loc q):{
+      if (inp.question == id.name)
+        venv = venv + (id.name: inp.\value);
+    }
+    case  computedQuestion(strg(sq), ref(AId id, src = loc u), AType var, AExpr e, src = loc qloc): {
+        venv = venv + (id.name: eval(e, venv));
+    }
+
+    default: throw "Unsupported question <q>";
+  }
+  return venv; 
 }
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
     case ref(id(str x)): return venv[x];
-    
+    case intgr(int n): return vint(n);
+    case add(AExpr e1, AExpr e2): 
+      return vint(eval(e1, venv).n + eval(e2, venv).n);
+    case sub(AExpr e1, AExpr e2):
+      return vint(eval(e1, venv).n - eval(e2, venv).n);
+    case mul(AExpr e1, AExpr e2):
+      return vint(eval(e1, venv).n * eval(e2, venv).n);
+    case div(AExpr e1, AExpr e2):
+      return vint(eval(e1, venv).n / eval(e2, venv).n);
+    case inBetweenParantherses(AExpr e): 
+      return eval(e, venv);    
     // etc.
     
     default: throw "Unsupported expression <e>";
+  }
+}
+
+
+Value eval(ABoolExpr be, VEnv venv) {
+  switch (be) {
+    case boolean(bool bv): return vbool(bv);
+    case and(ABoolExpr bLeft, ABoolExpr bRight):
+      return vbool(eval(bLeft, venv).b && eval(bRight, venv).b);
+    case or(ABoolExpr bLeft, ABoolExpr bRight):
+      return vbool(eval(bLeft, venv).b || eval(bRight, venv).b);
+    case gt(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n > eval(nRight, venv).n);
+    case lt(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n < eval(nRight, venv));
+    case geq(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n <= eval(nRight, venv).n);
+    case leq(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n <= eval(nRight, venv).n);
+    case eq(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n == eval(nRight, venv).n);
+    case neq(AExpr nLeft, AExpr nRight):
+      return vbool(eval(nLeft, venv).n != eval(nRight, venv).n);
+    // TODO: other cases
+    default: throw "Unsupported expression <be>";
+    
   }
 }

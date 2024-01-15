@@ -39,6 +39,8 @@ AQuestion cst2ast(Question q) {
       return simpleQuestion(cst2ast((Expr)`<Str s>`), cst2ast((Expr)`<Id id>`), cst2ast(t), src=q.src);
     case (Question)`<Str s> <Id id> : <Type t> = <Expr e>`: 
       return computedQuestion(cst2ast((Expr)`<Str s>`), cst2ast((Expr)`<Id id>`), cst2ast(t), cst2ast(e), src=q.src);
+    // case (Question)`<Str s> <Id id> : <Type t> = <BoolExpr be>`: 
+    //   return computedQuestion(cst2ast((Expr)`<Str s>`), cst2ast((Expr)`<Id id>`), cst2ast(t), cst2ast(be), src=q.src);
 
     default: throw "Unhandled question: <q>";
   }

@@ -57,4 +57,9 @@ ast = cst2ast(tax);
 
 import Eval;
 
+env = initialEnv(ast);
+
+// Example eval
+eval(ast, input("hasBoughtHouse", vbool(true)), env)
+
 ```
