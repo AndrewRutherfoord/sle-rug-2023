@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <form action="post" class="container">
+      <h1>Taxes</h1>
+      <div>
+        <label class="form-check-label" for="hasBoughtHouse">Has bought house</label>
+        <input class="form-check-input" type="checkbox" name="hasBoughtHouse" id="hasBoughtHouse">
+      </div>
+  
+      <div>
+        <label class="form-check-label" for="hasMaintLoan">Did you enter a loan?</label>
+        <input class="form-check-input" type="checkbox" name="hasMaintLoan" id="hasMaintLoan">
+      </div>
+  
+      <div id="cond_hasSoldHouse">
+        <div>
+          <label class="form-label" for="sellingPrice" onChange="updateValueResidue">What was the selling price?</label>
+          <input class="form-control" type="number" id="sellingPrice" name="sellingPrice" value="0">
+        </div>
+  
+        <div>
+          <label class="form-label" for="privateDebt" onChange="">Private debts for the sold house:</label>
+          <input class="form-control" type="integer" id="privateDebt" name="privateDebt" value="0">
+        </div>
+        
+        <div>
+          <label class="form-label" for="valueResidue">Value residue:</label>
+          <input class="form-control" type="integer" id="valueResidue" name="valueResidue" disabled>
+        </div>
+      </div>
+    </form>
+    <script>
+      const hasBoughtHouse = document.querySelector('#hasBoughtHouse');
+      const hasMaintLoan = document.querySelector('#hasMaintLoan');
+      const cond_hasSoldHouse = document.querySelector('#cond_hasSoldHouse');
+      const sellingPrice = document.querySelector('#sellingPrice');
+      const privateDebt = document.querySelector('#privateDebt');
+      const valueResidue = document.querySelector('#valueResidue');
+  
+      function updateHasSoldHouseVisibility() {
+        if (hasBoughtHouse.checked) {
+          cond_hasSoldHouse.style.display = 'block';
+        } else {
+          cond_hasSoldHouse.style.display = 'none';
+        }
+      }
+
+      hasBoughtHouse.addEventListener('change', () => updateHasSoldHouseVisibility());
+  
+      function updateValueResidue() {
+        valueResidue.value = sellingPrice.value - privateDebt.value;
+      }
+  
+      sellingPrice.addEventListener('change', () => updateValueResidue());
+      privateDebt.addEventListener('change', () => updateValueResidue());
+
+      updateHasSoldHouseVisibility();
+      updateValueResidue();
+    </script>
+  </body>
+</html>

@@ -65,7 +65,7 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
   visit (f) {
     case AQuestion q : venv = eval(q, inp, venv);
-    case AConditional c : venv = eval(c, inp, venv);
+    // case AConditional c : venv = eval(c, inp, venv);
   }
   return venv;
 }
