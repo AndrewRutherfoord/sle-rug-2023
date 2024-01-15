@@ -13,6 +13,9 @@ form taxOfficeExample {
   
   "Price?"
     price: integer
+
+  "sPrice?"
+    price: boolean
   
   "Mill"
     million : boolean = (hasBoughtHouse)
@@ -24,9 +27,9 @@ form taxOfficeExample {
     "What was the selling price?"
       sellingPrice: integer
     "Private debts for the sold house:"
-      privateDebt: integer
+      privateDebt: integer = million
     "Value residue:"
-      valueResidue: integer = sellingPrice - privateDebts
+      valueResidue: integer = sellingPrice - privateDebt
       
   }
 }

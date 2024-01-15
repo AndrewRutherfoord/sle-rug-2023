@@ -38,3 +38,23 @@ ast = cst2ast(t);
 check(ast);
 
 ```
+
+
+## Eval
+
+
+## Create Parse Tree for File
+```
+import IDE;
+import ParseTree;
+import AST;
+import CST2AST;
+import Syntax;
+
+tax = parse(#start[Form], |project://sle-rug/examples/tax.myql|, allowAmbiguity=true);
+
+ast = cst2ast(tax);
+
+import Eval;
+
+```

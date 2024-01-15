@@ -26,8 +26,29 @@ data Input
   
 // produce an environment which for each question has a default value
 // (e.g. 0 for int, "" for str etc.)
+
+int defaultInt() = 0;
+bool defaultBool() = false;
+str defaultStr() = "";
+
+Value defaultValue(AType t) {
+  switch (t) {
+    case integer(): return vint(defaultInt());
+    case boolean(): return vbool(defaultBool());
+    case string(): return vstr(defaultStr());
+    default: throw "Unsupported type <t>";
+  }
+}
+
 VEnv initialEnv(AForm f) {
-  return ();
+  VEnv venv = ();
+  visit(f) {
+  	case simpleQuestion(strg(str label), ref(AId id, src = loc u), AType varType, src = loc q):
+  		venv = venv + (id.name: defaultValue(varType));
+    case computedQuestion(strg(str label), ref(AId id, src = loc u), AType varType, AExpr e, src = loc q):
+    	venv = venv + (id.name: defaultValue(varType));
+  }
+  return venv;
 }
 
 
