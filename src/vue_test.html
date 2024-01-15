@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <div id="app">
+    <form action="post" class="container">
+      <h1>Taxes</h1>
+      <bool-input v-model="form.hasBoughtHouse" label="Did you buy a house in 2010?" id="hasBoughtHouse"></bool-input>
+      <bool-input v-model="form.hasMaintLoan" label="Did you enter a loan?" id="hasMaintLoan"></bool-input>
+      <bool-input v-model="form.hasSoldHouse" label="Did you sell a house in 2010?" id="hasSoldHouse"></bool-input>
+
+      <div v-show="form.hasSoldHouse">
+        <int-input label="What was the selling price?" v-model="form.sellingPrice"></int-input>
+        <int-input label="Private debts for the sold house:" v-model="form.privateDebt"></int-input>
+        <computed-input label="Value residue:" :value="valueResidue"></computed-input>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+    const BoolInput = Vue.defineComponent(
+      {
+        props: {
+          label: {
+            type: String,
+            required: true
+          },
+          id: {
+            type: String,
+            required: true
+          },
+          modelValue: {
+            type: Boolean,
+            required: true
+          }
+        },
+        emits: ['update:modelValue'],
+        template: `
+          <div>
+            <label class="form-label" :for="id">{{ label }}</label>
+            <select class="form-control" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value == 'true')">
+              <option :value="true">Yes</option>
+              <option :value="false">No</option>
+            </select>
+          </div>
+        `
+      }
+    )
+
+    const IntInput = Vue.defineComponent({
+      props: {
+        label: {
+          type: String,
+          required: true
+        },
+        id: {
+          type: String,
+          required: true
+        },
+        modelValue: {
+          type: String,
+          required: true
+        }
+      },
+      template: `
+        <div>
+          <label class="form-label" :for="id">{{ label }}</label>
+          <input class="form-control" type="number" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value)">
+        </div>
+      `
+    });
+
+    const StrInput = Vue.defineComponent({
+      props: {
+        label: {
+          type: String,
+          required: true
+        },
+        id: {
+          type: String,
+          required: true
+        },
+        modelValue: {
+          type: String,
+          required: true
+        }
+      },
+      template: `
+        <div>
+          <label class="form-label" :for="id">{{ label }}</label>
+          <input class="form-control" type="text" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value)">
+        </div>
+      `
+    });
+
+    const ComputedInput = Vue.defineComponent({
+      props: {
+        label: {
+          type: String,
+          required: true
+        },
+        value: {
+          type: String,
+          required: true
+        }
+      },
+      template: `
+        <div>
+          <label class="form-label" :for="id">{{ label }}</label>
+          <input class="form-control" type="text" :id="id" :value="value">
+        </div>
+      `
+    });
+
+    createApp({
+      components: {
+        StrInput, BoolInput, IntInput, ComputedInput
+      },
+      data() {
+        return {
+          form: {
+            hasBoughtHouse: false,
+            hasMaintLoan: false,
+            hasSoldHouse: false,
+            sellingPrice: 0,
+            privateDebt: 0,
+          }
+        }
+      },
+      computed: {
+        valueResidue() {
+          return this.form.sellingPrice - this.form.privateDebt
+        },
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
