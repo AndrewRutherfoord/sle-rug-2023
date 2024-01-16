@@ -13,21 +13,173 @@
 
   <div id="app">
   <form class="container">
-    <bool-input label="Did you buy a house in 2010?" v-model="hasBoughtHouse"></bool-input>
-    <bool-input label="Did you enter a loan?" v-model="hasMaintLoan"></bool-input>
-    <bool-input label="Did you sell a house in 2010?" v-model="hasSoldHouse"></bool-input>
-    <int-input label="What was the selling price?" v-model="sellingPrice"></int-input>
-    <int-input label="Private debts for the sold house:" v-model="privateDebt"></int-input>
-<div v-if="hasSoldHouse">
-    <int-input label="What was the selling price?" v-model="sellingPrice"></int-input>
-    <int-input label="Private debts for the sold house:" v-model="privateDebt"></int-input>
+    <bool-input label="Is the number between 1 and 10" v-model="x_1_10"></bool-input>
+<div v-if="x_1_10">
+    <bool-input label="Is the number between 1 and 5" v-model="x_1_5"></bool-input>
+<div v-if="x_1_5">
+    <bool-input label="Is the number between 1 and 3" v-model="x_1_3"></bool-input>
+<div v-if="x_1_3">
+    <bool-input label="Is the number between 1 and 2" v-model="x_1_2"></bool-input>
+<div v-if="x_1_2">
 
-<div>
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 3 and 4" v-model="x_3_4"></bool-input>
+<div v-if="x_3_4">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 5 and 7" v-model="x_5_7"></bool-input>
+<div v-if="x_5_7">
+    <bool-input label="Is the number between 5 and 6" v-model="x_5_6"></bool-input>
+<div v-if="x_5_6">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 7 and 8" v-model="x_7_8"></bool-input>
+<div v-if="x_7_8">
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 8 and 9" v-model="x_8_9"></bool-input>
+<div v-if="x_8_9">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 10 and 15" v-model="x_10_15"></bool-input>
+<div v-if="x_10_15">
+    <bool-input label="Is the number between 10 and 12" v-model="x_10_12"></bool-input>
+<div v-if="x_10_12">
+    <bool-input label="Is the number between 10 and 11" v-model="x_10_11"></bool-input>
+<div v-if="x_10_11">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 12 and 13" v-model="x_12_13"></bool-input>
+<div v-if="x_12_13">
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 13 and 14" v-model="x_13_14"></bool-input>
+<div v-if="x_13_14">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 15 and 17" v-model="x_15_17"></bool-input>
+<div v-if="x_15_17">
+    <bool-input label="Is the number between 15 and 16" v-model="x_15_16"></bool-input>
+<div v-if="x_15_16">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 17 and 18" v-model="x_17_18"></bool-input>
+<div v-if="x_17_18">
+
+</div>
+
+<div v-else>
+
+    <bool-input label="Is the number between 18 and 19" v-model="x_18_19"></bool-input>
+<div v-if="x_18_19">
+
+</div>
+
+<div v-else>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
   </form>
   </div>
 
-  <script type="module" src="vue-form.js"></script>
+  <script type="module" src="./idk.js"></script>
 </body>
 
 </html>

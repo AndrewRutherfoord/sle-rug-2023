@@ -4,6 +4,9 @@ import AST;
 import Resolve;
 import IO;
 
+str js_file = "./idk.js";
+str html_file = "./idk.html";
+
 data Value
   = vint(int n)
   | vbool(bool b)
@@ -38,9 +41,9 @@ Value defaultValue(AType t) {
  */
 
 void compile(AForm f) {
-  writeFile(|project://sle-rug/src/outputs/idk.js|, form2js(f));
+  writeFile(f.src[extension="js"].top, form2js(f));
   // Not using writeHTMLString because it of custom components not being supported. We are using Vue components.
-  writeFile(|project://sle-rug/src/outputs/idk.html|, form2html(f));
+  writeFile(f.src[extension="html"].top, form2html(f));
 }
 
 str form2html(AForm f) {
@@ -63,7 +66,7 @@ str form2html(AForm f) {
   '  \</form\>
   '  \</div\>
   '
-  '  \<script type=\"module\" src=\"vue-form.js\"\>\</script\>
+  '  \<script type=\"module\" src=\"<f.src[extension="js"].file>\"\>\</script\>
   '\</body\>
   '
   '\</html\>
@@ -83,23 +86,15 @@ str cond2html(ABoolExpr be) {
   return bexprToStr(be);
 }
 
+
 str components2Html(list[AComponent] cs) {
   result = "";
   for (c <- cs) {
-    visit(c) {
-      case simpleQuestion(strg(str label), ref(id(str sid), src = loc u), AType varType, src = loc q):
-        result = result + simpleQuestion2html(sid, label, varType);
-      case ifThen(ABoolExpr cond, list[AComponent] then, src = loc u):
-        result = result + "\<div v-if=\"<cond2html(cond)>\"\>
-          '<components2Html(then)>
-          '\<div\>\n";
-      case ifThenElse(ABoolExpr cond, list[AComponent] then, list[AComponent] elseC, src = loc u):
-        result = result + "\<div v-if=\"<cond2html(cond)>\"\>
-          '<components2Html(then)>
-          '<components2Html(elseC)>
-          '\<div\>\n";
-      case computedQuestion(AExpr text, AExpr id, AType t, AExpr expr):
-        result = result;
+    switch(c) {
+      case questionComponent(AQuestion q, src = loc u):
+        result = result + question2Html(q);
+      case conditionalComponent(AConditional c, src = loc u):
+        result = result + conditional2Html(c);
       default : 
         result = result;
     }
@@ -107,11 +102,35 @@ str components2Html(list[AComponent] cs) {
   return result;
 }
 
-str question2Html(AForm f) {
+str conditional2Html(AConditional c) {
   result = "";
-  visit(f) {
-  	case simpleQuestion(strg(str label), ref(id(str sid), src = loc u), AType varType, src = loc q):
-  		result = result + simpleQuestion2html(sid, label, varType);
+  switch(c) {
+      case ifThen(ABoolExpr cond, list[AComponent] then, src = loc u):
+        result = result + "\<div v-if=\"<cond2html(cond)>\"\>
+          '<components2Html(then)>
+          '\</div\>\n";
+      case ifThenElse(ABoolExpr cond, list[AComponent] then, list[AComponent] elseC, src = loc u):
+        result = result + "\<div v-if=\"<cond2html(cond)>\"\>
+          '<components2Html(then)>
+          '\</div\>\n
+          '\<div v-else\>\n
+          '<components2Html(elseC)>
+          '\</div\>\n";
+      default : 
+        result = result;
+  }
+  return result;
+}
+
+str question2Html(AQuestion q) {
+  result = "";
+  switch(q) {
+    case simpleQuestion(strg(str label), ref(id(str sid), src = loc u), AType varType, src = loc q):
+      result = result + simpleQuestion2html(sid, label, varType);
+    case computedQuestion(AExpr text, AExpr id, AType t, AExpr expr):
+      result = result;
+    default : 
+        result = result;
   }
   return result;
 }
@@ -154,7 +173,6 @@ str fields2js(AForm f) {
         result += eVar + ": <b>,\n";
     }
   }
-  bprintln(result);
   return result;
 }
 

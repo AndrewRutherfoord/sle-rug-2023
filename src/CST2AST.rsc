@@ -50,8 +50,8 @@ AConditional cst2ast(Conditional cnd) {
   switch (cnd) {
     case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> }`:
       return ifThen(cst2ast(be), [ cst2ast(c) | Component c <- cs ], src=cnd.src);
-    case (Conditional)`if ( <BoolExpr be> ) { <Component* cs> } else { <Component* cs> }`:
-      return ifThenElse(cst2ast(be), [ cst2ast(c) | Component c <- cs ], [ cst2ast(c) | Component c <- cs ], src=cnd.src);
+    case (Conditional)`if ( <BoolExpr be> ) { <Component* tcs> } else { <Component* ecs> }`:
+      return ifThenElse(cst2ast(be), [ cst2ast(c) | Component c <- tcs ], [ cst2ast(c) | Component c <- ecs ], src=cnd.src);
 
     default: throw "Unhandled conditional: <cnd>";
   }
