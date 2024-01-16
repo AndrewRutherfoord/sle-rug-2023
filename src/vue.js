@@ -111,10 +111,7 @@ createApp({
   },
   computed: {
     valueResidue() {
-      return (
-        this.form.sellingPrice -
-        this.form.privateDebt
-      );
+      return this.sellingPrice - this.privateDebt;
     },
   },
 }).mount("#app");
