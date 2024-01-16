@@ -19,16 +19,15 @@
       <bool-input v-model="hasSoldHouse" label="Did you sell a house in 2010?" id="hasSoldHouse"></bool-input>
 
       <div v-show="hasSoldHouse">
-        <int-input label="What was the selling price?" v-model="sellingPrice"></int-input>
-        <int-input label="Private debts for the sold house:" v-model="privateDebt"></int-input>
-        <computed-input label="Value residue:" :value="valueResidue"></computed-input>
+        <int-input label="What was the selling price?" v-model="sellingPrice" id="sellingPrice">  </int-input>
+        <int-input label="Private debts for the sold house:" v-model="privateDebt" id="privateDebt" ></int-input>
+        <computed-input label="Value residue:" :value="valueResidue" id="valueResidue" ></computed-input>
       </div>
   </div>
   </form>
   </div>
 
-  <script src="./vue.js">
-  </script>
+  <script type="module" src="vue-form.js"></script>
 </body>
 
 </html>

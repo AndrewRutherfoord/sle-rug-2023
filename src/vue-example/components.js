@@ -1,5 +1,4 @@
-const { createApp } = Vue;
-const BoolInput = Vue.defineComponent({
+export const BoolInput = Vue.defineComponent({
   props: {
     label: {
       type: String,
@@ -26,7 +25,7 @@ const BoolInput = Vue.defineComponent({
         `,
 });
 
-const IntInput = Vue.defineComponent({
+export const IntInput = Vue.defineComponent({
   props: {
     label: {
       type: String,
@@ -37,7 +36,7 @@ const IntInput = Vue.defineComponent({
       required: true,
     },
     modelValue: {
-      type: String,
+      type: Number,
       required: true,
     },
   },
@@ -50,7 +49,7 @@ const IntInput = Vue.defineComponent({
       `,
 });
 
-const StrInput = Vue.defineComponent({
+export const StrInput = Vue.defineComponent({
   props: {
     label: {
       type: String,
@@ -74,13 +73,16 @@ const StrInput = Vue.defineComponent({
       `,
 });
 
-const ComputedInput = Vue.defineComponent({
+export const ComputedInput = Vue.defineComponent({
   props: {
     label: {
       type: String,
       required: true,
     },
     value: {
+      required: true,
+    },
+    id: {
       type: String,
       required: true,
     },
@@ -92,26 +94,3 @@ const ComputedInput = Vue.defineComponent({
         </div>
       `,
 });
-
-createApp({
-  components: {
-    StrInput,
-    BoolInput,
-    IntInput,
-    ComputedInput,
-  },
-  data() {
-    return {
-      hasBoughtHouse: false,
-      hasMaintLoan: false,
-      hasSoldHouse: false,
-      sellingPrice: 0,
-      privateDebt: 0,
-    };
-  },
-  computed: {
-    valueResidue() {
-      return this.sellingPrice - this.privateDebt;
-    },
-  },
-}).mount("#app");
