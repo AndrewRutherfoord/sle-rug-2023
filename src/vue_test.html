@@ -14,16 +14,17 @@
   <div id="app">
     <form action="post" class="container">
       <h1>Taxes</h1>
-      <bool-input v-model="form.hasBoughtHouse" label="Did you buy a house in 2010?" id="hasBoughtHouse"></bool-input>
-      <bool-input v-model="form.hasMaintLoan" label="Did you enter a loan?" id="hasMaintLoan"></bool-input>
-      <bool-input v-model="form.hasSoldHouse" label="Did you sell a house in 2010?" id="hasSoldHouse"></bool-input>
+      <bool-input v-model="hasBoughtHouse" label="Did you buy a house in 2010?" id="hasBoughtHouse"></bool-input>
+      <bool-input v-model="hasMaintLoan" label="Did you enter a loan?" id="hasMaintLoan"></bool-input>
+      <bool-input v-model="hasSoldHouse" label="Did you sell a house in 2010?" id="hasSoldHouse"></bool-input>
 
-      <div v-show="form.hasSoldHouse">
-        <int-input label="What was the selling price?" v-model="form.sellingPrice"></int-input>
-        <int-input label="Private debts for the sold house:" v-model="form.privateDebt"></int-input>
+      <div v-show="hasSoldHouse">
+        <int-input label="What was the selling price?" v-model="sellingPrice"></int-input>
+        <int-input label="Private debts for the sold house:" v-model="privateDebt"></int-input>
         <computed-input label="Value residue:" :value="valueResidue"></computed-input>
       </div>
-    </form>
+  </div>
+  </form>
   </div>
 
   <script>
@@ -129,18 +130,16 @@
       },
       data() {
         return {
-          form: {
-            hasBoughtHouse: false,
-            hasMaintLoan: false,
-            hasSoldHouse: false,
-            sellingPrice: 0,
-            privateDebt: 0,
-          }
+          hasBoughtHouse: false,
+          hasMaintLoan: false,
+          hasSoldHouse: false,
+          sellingPrice: 0,
+          privateDebt: 0,
         }
       },
       computed: {
         valueResidue() {
-          return this.form.sellingPrice - this.form.privateDebt
+          return this.sellingPrice - this.privateDebt
         },
       }
     }).mount('#app')
