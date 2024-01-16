@@ -46,16 +46,15 @@
         },
         emits: ['update:modelValue'],
         template: `
-          <div>
-            <label class="form-label" :for="id">{{ label }}</label>
-            <select class="form-control" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value == 'true')">
-              <option :value="true">Yes</option>
-              <option :value="false">No</option>
-            </select>
-          </div>
+        <div>
+          <label class="form-label" :for="id">{{ label }}</label>
+          <select class="form-control" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value == 'true')">
+            <option :value="true">Yes</option>
+            <option :value="false">No</option>
+          </select>
+        </div>
         `
-      }
-    )
+      })
 
     const IntInput = Vue.defineComponent({
       props: {
@@ -72,11 +71,12 @@
           required: true
         }
       },
+      emits: ['update:modelValue'],
       template: `
-        <div>
-          <label class="form-label" :for="id">{{ label }}</label>
-          <input class="form-control" type="number" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value)">
-        </div>
+      <div>
+        <label class="form-label" :for="id">{{ label }}</label>
+        <input class="form-control" type="number" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value)">
+      </div>
       `
     });
 
@@ -95,6 +95,7 @@
           required: true
         }
       },
+      emits: ['update:modelValue'],
       template: `
         <div>
           <label class="form-label" :for="id">{{ label }}</label>
