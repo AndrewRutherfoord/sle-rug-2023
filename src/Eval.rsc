@@ -115,6 +115,7 @@ Value eval(AExpr e, VEnv venv) {
 
 Value eval(ABoolExpr be, VEnv venv) {
   switch (be) {
+    case bref(id(str x)): return venv[x];
     case boolean(bool bv): return vbool(bv);
     case and(ABoolExpr bLeft, ABoolExpr bRight):
       return vbool(eval(bLeft, venv).b && eval(bRight, venv).b);
@@ -123,7 +124,7 @@ Value eval(ABoolExpr be, VEnv venv) {
     case gt(AExpr nLeft, AExpr nRight):
       return vbool(eval(nLeft, venv).n > eval(nRight, venv).n);
     case lt(AExpr nLeft, AExpr nRight):
-      return vbool(eval(nLeft, venv).n < eval(nRight, venv));
+      return vbool(eval(nLeft, venv).n < eval(nRight, venv).n);
     case geq(AExpr nLeft, AExpr nRight):
       return vbool(eval(nLeft, venv).n <= eval(nRight, venv).n);
     case leq(AExpr nLeft, AExpr nRight):
@@ -132,6 +133,8 @@ Value eval(ABoolExpr be, VEnv venv) {
       return vbool(eval(nLeft, venv).n == eval(nRight, venv).n);
     case neq(AExpr nLeft, AExpr nRight):
       return vbool(eval(nLeft, venv).n != eval(nRight, venv).n);
+    case not(ABoolExpr e):
+      return eval(e, venv).b;
     // TODO: other cases
     default: throw "Unsupported expression <be>";
     
