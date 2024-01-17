@@ -84,8 +84,8 @@ AExpr cst2ast(Expr e) {
     case (Expr)`<Expr lhs> * <Expr rhs>`: return mul(cst2ast(lhs), cst2ast(rhs), src=e.src);
     case (Expr)`<Expr lhs> / <Expr rhs>`: return div(cst2ast(lhs), cst2ast(rhs), src=e.src);
     case (Expr)`(<Expr ex>)`            : return inBetweenParantherses(cst2ast(ex), src=e.src);
-    case (Expr)`<Id x>`                 : return ref(id("<x>", src=x.src), src=e.src);
-    case (Expr)`<Str s>`                : return strg("<s>", src=e.src);
+    case (Expr)`<Id x>`                 : return ref(id("<x>", src=x.src), src=x.src);
+    case (Expr)`<Str s>`                : return strg("<s>", src=s.src);
     
     default: throw "Unhandled expression: <e>";
   }

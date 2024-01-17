@@ -3,6 +3,10 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
+import CST2AST;
+import IO;
+import ParseTree;
+import Node;
 
 /* 
  * Transforming QL forms
@@ -39,9 +43,54 @@ AForm flatten(AForm f) {
  *
  */
  
-start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
+start[Form] rename(start[Form] f, str oldName, str newName) {
+  loc useOrDef = getRef(f, oldName);
+  if(useOrDef == |dummy:///|) {
+    return f;
+  }
+  RefGraph refs = resolve(cst2ast(f.top));
+  UseDef useDef = refs.useDef;
+  set[loc] toRename = {useOrDef};
+
+  if(useOrDef in refs.uses<0>) {
+    if(<useOrDef, loc def> <- useDef) {
+      toRename = toRename + {def};
+      toRename += { u | <loc u, def> <- useDef };
+    }
+  } else {
+    toRename += { u | <useOrDef, loc u> <- useDef };
+  }
+  bprintln(toRename);
+   return visit(f) {
+      case Id id => refactorId(id, "<newName>", toRename)
+   }
 } 
+
+loc getRef(start[Form] f, str nameToFind) {
+  RefGraph refs = resolve(cst2ast(f.top));
+  Use useDef = refs.uses;
+
+  for(<loc use, str name> <- useDef) {
+    bprintln(name);
+    if(name == nameToFind) {
+      return use;
+    }
+  }
+  return |dummy:///|;
+}
+
+
+Id refactorId(Id id, str newName, set[loc] usesAndDefs) {
+    
+	if (id.src in usesAndDefs) {
+	   	Id newId = parse(#Id, "<newName>");
+		newId = setAnnotations(newId, ("loc": id@\loc));
+    bprintln("renamed");
+		return newId;
+	} else {
+		return id;
+	}
+ }
  
  
  
