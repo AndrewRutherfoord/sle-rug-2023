@@ -23,8 +23,8 @@ data AQuestion(loc src = |tmp:///|)
   ; 
 
 data AConditional(loc src = |tmp:///|)
-  = ifThen(ABoolExpr, list[AComponent] components)
-  | ifThenElse(ABoolExpr, list[AComponent] components, list[AComponent] elseComponents)
+  = ifThen(ABoolExpr guard, list[AComponent] components)
+  | ifThenElse(ABoolExpr guard, list[AComponent] components, list[AComponent] elseComponents)
   ;
 
 data ABoolExpr(loc src = |tmp:///|)

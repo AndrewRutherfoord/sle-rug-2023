@@ -196,10 +196,12 @@ str bexprToStr(ABoolExpr be) {
       return "<exprToStr(nLeft)> == <exprToStr(nRight)>";
     case neq(AExpr nLeft, AExpr nRight):
       return "<exprToStr(nLeft)> != <exprToStr(nRight)>";
+    case parentheses(ABoolExpr b):
+      return "(<bexprToStr(b)>)";
     case not(ABoolExpr b):
-      return "!<bexprToStr(b)>";
+      return "!(<bexprToStr(b)>)";
     
-    default: throw "Yo mama <be>";
+    default: throw "Unsupported expression <be>";
   }
 }
 

@@ -35,7 +35,7 @@ Fork the [sle-rug](https://github.com/cwi-swat/sle-rug) repository, add the fold
 - Week 4: Type checker for QL (module `Check`)
 - Week 5: Interpreter for QL (module `Eval`)
 - Week 6: Code generator compiling QL to executable HTML and Javascript (module `Compile`)
-- Week 7: Normalization of QL and rename refactoring (module `Transform`)
+  - Week 7: Normalization of QL and rename refactoring (module `Transform`)
 - Week 8: Grading of lab starts
 
 ## QL

@@ -33,7 +33,44 @@ import Node;
  */
  
 AForm flatten(AForm f) {
-  return f; 
+  list[AComponent] comps = [];
+  for (AComponent c <- f.components) {
+    comps += flatten(c, boolean(true));
+  }
+  return form(f.name, comps, src=f.src);
+}
+
+list[AComponent] flatten(AComponent c, ABoolExpr g) {
+  list[AComponent] comps = [];
+  switch (c) {
+    case questionComponent(q) : comps += flatten(q, g);
+    case conditionalComponent(cond) : comps += flatten(cond, g);
+  }
+  return comps;
+}
+
+list[AComponent] flatten(AConditional c, ABoolExpr g) {
+  list[AComponent] comps = [];
+  switch (c) {
+    case ifThen(ABoolExpr guard, list[AComponent] cs) :  comps += flatten(cs, and(g, guard));
+    case ifThenElse(ABoolExpr guard, list[AComponent] cs, list[AComponent] ecs) : {
+      comps += flatten(cs, and(g, guard));
+      comps += flatten(ecs, and(g, not(guard)));
+    }
+  }
+  return comps;
+}
+
+list[AComponent] flatten(list[AComponent] cs, ABoolExpr g) {
+  list[AComponent] comps = [];
+  for (AComponent c <- cs) {
+    comps += flatten(c, g);
+  }
+  return comps;
+}
+
+list[AComponent] flatten(AQuestion q, ABoolExpr g) {
+  return [conditionalComponent(ifThen(g, [questionComponent(q)]))];
 }
 
 /* Rename refactoring:
