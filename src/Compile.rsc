@@ -75,9 +75,9 @@ str form2html(AForm f) {
 
 str simpleQuestion2html(str id, str label, AType varType) {
   switch (varType) {
-    case integer(): return "    \<int-input label=<label> v-model=\"<id>\"\>\</int-input\>\n";
-    case boolean(): return "    \<bool-input label=<label> v-model=\"<id>\"\>\</bool-input\>\n";
-    case string(): return "    \<str-input label=<label> v-model=\"<id>\"\>\</str-input\>\n";
+    case integer(): return "    \<int-input  id=\"<id>\" label=<label> v-model=\"<id>\"\>\</int-input\>\n";
+    case boolean(): return "    \<bool-input id=\"<id>\" label=<label> v-model=\"<id>\"\>\</bool-input\>\n";
+    case string(): return "     \<str-input  id=\"<id>\" label=<label> v-model=\"<id>\"\>\</str-input\>\n";
     default: throw "Unsupported type <varType>";
   }
 }
@@ -93,8 +93,8 @@ str components2Html(list[AComponent] cs) {
     switch(c) {
       case questionComponent(AQuestion q, src = loc u):
         result = result + question2Html(q);
-      case conditionalComponent(AConditional c, src = loc u):
-        result = result + conditional2Html(c);
+      case conditionalComponent(AConditional cc, src = loc u):
+        result = result + conditional2Html(cc);
       default : 
         result = result;
     }
@@ -122,13 +122,22 @@ str conditional2Html(AConditional c) {
   return result;
 }
 
+str computedQuestion2Html(str id, str label, AType varType, AExpr expr) {
+  switch (varType) {
+    case integer(): return "    \<computed-input id=\"<id>\" label=<label> v-bind:value=\"<id>\"\>\</computed-input\>\n";
+    case boolean(): return "    \<computed-input id=\"<id>\" label=<label> v-bind:value=\"<id>\"\>\</computed-input\>\n";
+    case string(): return  "    \<computed-input id=\"<id>\" label=<label> v-bind:value=\"<id>\"\>\</computed-input\>\n";
+    default: throw "Unsupported type <varType>";
+  }
+}
+
 str question2Html(AQuestion q) {
   result = "";
   switch(q) {
     case simpleQuestion(strg(str label), ref(id(str sid), src = loc u), AType varType, src = loc q):
       result = result + simpleQuestion2html(sid, label, varType);
-    case computedQuestion(AExpr text, AExpr id, AType t, AExpr expr):
-      result = result;
+    case computedQuestion(strg(str label), ref(id(str sid), src= loc u), AType varType, AExpr expr, src=loc q):
+      result = result + computedQuestion2Html(sid, label, varType, expr);
     default : 
         result = result;
   }
@@ -185,17 +194,17 @@ str bexprToStr(ABoolExpr be) {
     case or(ABoolExpr bLeft, ABoolExpr bRight):
       return "<bexprToStr(bLeft)> || <bexprToStr(bRight)>";
     case gt(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> \> <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> \> <exprToStr(nRight, false)>";
     case lt(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> \< <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> \< <exprToStr(nRight, false)>";
     case geq(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> \>= <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> \>= <exprToStr(nRight, false)>";
     case leq(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> \<= <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> \<= <exprToStr(nRight, false)>";
     case eq(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> == <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> == <exprToStr(nRight, false)>";
     case neq(AExpr nLeft, AExpr nRight):
-      return "<exprToStr(nLeft)> != <exprToStr(nRight)>";
+      return "<exprToStr(nLeft, false)> != <exprToStr(nRight, false)>";
     case parentheses(ABoolExpr b):
       return "(<bexprToStr(b)>)";
     case not(ABoolExpr b):
@@ -205,20 +214,26 @@ str bexprToStr(ABoolExpr be) {
   }
 }
 
-str exprToStr(AExpr e) {
+str exprToStr(AExpr e, bool withThis) {
   switch (e) {
-    case ref(id(str x)): return "this.<x>";
+    case ref(id(str x)): {
+      if (withThis) {
+        return "this.<x>";
+      } else {
+        return "<x>";
+      }
+    }
     case intgr(int n): return "<n>";
     case add(AExpr e1, AExpr e2): 
-      return "<exprToStr(e1)> + <exprToStr(e2)>";
+      return "<exprToStr(e1, withThis)> + <exprToStr(e2, withThis)>";
     case sub(AExpr e1, AExpr e2):
-      return "<exprToStr(e1)> - <exprToStr(e2)>";
+      return "<exprToStr(e1, withThis)> - <exprToStr(e2, withThis)>";
     case mul(AExpr e1, AExpr e2):
-      return "<exprToStr(e1)> * <exprToStr(e2)>";
+      return "<exprToStr(e1, withThis)> * <exprToStr(e2, withThis)>";
     case div(AExpr e1, AExpr e2):
-      return "<exprToStr(e1)> / <exprToStr(e2)>";
+      return "<exprToStr(e1, withThis)> / <exprToStr(e2, withThis)>";
     case inBetweenParantherses(AExpr e): 
-      return "(<exprToStr(e)>)";    
+      return "(<exprToStr(e, withThis)>)";    
     // etc.
     
     default: throw "Unsupported expression <e>";
@@ -227,7 +242,7 @@ str exprToStr(AExpr e) {
 
 str computedField2js(str id, AExpr e ){ 
   return id + "() {
-    '  return <exprToStr(e)>
+    '  return <exprToStr(e, true)>
     '},\n";
 }
 str computed2js(AForm f) {

@@ -50,12 +50,11 @@ import ParseTree;
 import AST;
 import CST2AST;
 import Syntax;
+import Compile;
+import Eval;
 
 tax = parse(#start[Form], |project://sle-rug/examples/tax.myql|, allowAmbiguity=true);
-
 ast = cst2ast(tax);
-
-import Eval;
 
 env = initialEnv(ast);
 

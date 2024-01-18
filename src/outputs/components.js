@@ -44,7 +44,12 @@ export const IntInput = Vue.defineComponent({
   template: `
       <div>
         <label class="form-label" :for="id">{{ label }}</label>
-        <input class="form-control" type="number" :id="id" :value="modelValue" @change="$emit('update:modelValue', $event.target.value)">
+        <input 
+          class="form-control" 
+          pattern="[0-9]{1,10}" 
+          type="number" :id="id" 
+          :value="modelValue" 
+          @change="$emit('update:modelValue', ($event.target.value === "" ? 0 : parseInt($event.target.value, 10)))">
       </div>
       `,
 });
