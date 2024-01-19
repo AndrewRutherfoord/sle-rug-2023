@@ -47,7 +47,6 @@ VEnv initialEnv(AForm f) {
   	case simpleQuestion(strg(str label), ref(AId id, src = loc u), AType varType, src = loc q):
   		venv = venv + (id.name: defaultValue(varType));
     case computedQuestion(strg(str label), ref(AId id, src = loc u), AType varType, AExpr e, src = loc q):
-      // TODO: Needs to be evaluated??
     	venv = venv + (id.name: defaultValue(varType));
   }
   return venv;
@@ -65,13 +64,11 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
   visit (f) {
     case AQuestion q : venv = eval(q, inp, venv);
-    // case AConditional c : venv = eval(c, inp, venv);
   }
   return venv;
 }
 
 VEnv eval(AConditional c, Input inp, VEnv venv) {
-  // TODO
   return venv; 
 }
 
@@ -106,7 +103,6 @@ Value eval(AExpr e, VEnv venv) {
       return vint(eval(e1, venv).n / eval(e2, venv).n);
     case inBetweenParantherses(AExpr e): 
       return eval(e, venv);    
-    // etc.
     
     default: throw "Unsupported expression <e>";
   }
@@ -134,9 +130,8 @@ Value eval(ABoolExpr be, VEnv venv) {
     case neq(AExpr nLeft, AExpr nRight):
       return vbool(eval(nLeft, venv).n != eval(nRight, venv).n);
     case not(ABoolExpr e):
-      return eval(e, venv).b;
-    // TODO: other cases
-    default: throw "Unsupported expression <be>";
-    
+      return vbool(!eval(e, venv).b);
+
+    default: throw "Unsupported expression <be>";    
   }
 }

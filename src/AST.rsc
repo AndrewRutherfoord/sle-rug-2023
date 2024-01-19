@@ -19,7 +19,6 @@ data AComponent(loc src = |tmp:///|)
 data AQuestion(loc src = |tmp:///|)
   = simpleQuestion(AExpr text, AExpr id, AType t)
   | computedQuestion(AExpr text, AExpr id, AType t, AExpr expr)
-  // | computedQuestion(AExpr text, AExpr id, AType t, ABoolExpr boolExpr)
   ; 
 
 data AConditional(loc src = |tmp:///|)

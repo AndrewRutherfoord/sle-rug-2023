@@ -99,8 +99,6 @@ set[Message] checkBoolQuestionAndExprType(ABoolExpr e, TEnv tenv, UseDef useDef)
 	return msgs;
 }
 
-// WORKS!!!
-// Produce an error if there are declared questions with the same name but different types.
 set[Message] checkName(str name, AId id, Type t, AType var, loc def) {
 	if (name == id.name) {
 		if (t != ATypeToDataType(var)) {
@@ -112,8 +110,6 @@ set[Message] checkName(str name, AId id, Type t, AType var, loc def) {
 	return {};
 }
 
-// WORKS!!!
-// If there are duplicate labels they should trigger a warning.
 set[Message] checkLabel(str label, str sq, loc def, loc qloc) {
     if (label == sq && def != qloc) {
 		return { warning("There is another question with the same label", def) };
@@ -126,20 +122,13 @@ set[Message] check(AConditional c, TEnv tenv, UseDef useDef) {
   
   switch (c) {
     case ifThenElse(ABoolExpr cond, list[AComponent] thenpart, list[AComponent] elsepart): { 
-
-			//Check whether the condition is of type boolean and,
-			//whether the expression contains compatible types
   			msgs += checkBoolQuestionAndExprType(cond, tenv, useDef);
-  			//Recursively check all questions within the if and else construct for errors/warnings
   			for (AComponent component <- c.components + c.elseComponents) {
   				msgs += check(component, tenv, useDef);
   			}
   		}
 		case ifThen(ABoolExpr cond, list[AComponent] components): {
-			//Check whether the condition is of type boolean and,
-			//whether the expression contains compatible types
 			msgs += checkBoolQuestionAndExprType(cond, tenv, useDef);
-			//Recursively check all questions within the if construct for errors/warnings
   			for (AComponent component <- c.components) {
   				msgs += check(component, tenv, useDef);
   			}
@@ -157,7 +146,6 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
 
   switch(q) {
     case simpleQuestion(strg(sq), ref(AId id, src = loc u), AType var, src = loc qloc): {
-    		// result += checkKeyWords(id, u);
     		for (<loc def, str name, str label, Type t> <- tenv) {
     			//For all questions except for the one we are currently verifying
     			if (def != qloc) {
@@ -169,7 +157,6 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
 	    	}
 		}
     case computedQuestion(strg(sq), ref(AId id, src = loc u), AType var, AExpr e, src = loc qloc): {
-			// result += checkKeyWords(id, u);
 			for (<loc def, str name, str label, Type t> <- tenv) {
 				//For all questions except for the one we are currently verifying
 				if (def != qloc) {
@@ -177,9 +164,7 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
 					msgs += checkName(name, id, t, var, def);
 					//Check for duplicate labels
 					msgs += checkLabel(label, sq, def, qloc);	
-				} else {//For the one we are currently verifying
-					//Check whether the expression type matches the question type, 
-					//and check whether the expression contains compatible types
+				} else {
 					msgs += checkQuestionAndExprType(e, t, tenv, useDef);
 				}
 			} 
@@ -298,7 +283,7 @@ Type typeOf(ABoolExpr be, TEnv tenv, UseDef useDef) {
     case boolean(bool _):
       return tbool();
     case bref(id(_, src = loc u)):  
-      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv)
+      if (<u, loc d> <- useDef, <d, _, _, Type t> <- tenv)
         return t;
   }
   return tunknown();
@@ -309,19 +294,19 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
     case inBetweenParantherses(se):
       return typeOf(se, tenv, useDef);
     case ref(id(_, src = loc u)):  
-      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv)
+      if (<u, loc d> <- useDef, <d, _, _, Type t> <- tenv)
         return t;
-    case mul(lhs, rhs):
+    case mul(_, _):
       return tint();
-    case div(lhs, rhs):
+    case div(_, _):
       return tint();
-    case add(lhs, rhs):
+    case add(_, _):
       return tint();
-    case sub(lhs, rhs):
+    case sub(_, _):
       return tint();
-    case intgr(int i):
+    case intgr(int _):
       return tint();
-    case strg(str s):
+    case strg(str _):
       return tstr();
   }
   return tunknown(); 

@@ -234,7 +234,6 @@ str exprToStr(AExpr e, bool withThis) {
       return "<exprToStr(e1, withThis)> / <exprToStr(e2, withThis)>";
     case inBetweenParantherses(AExpr e): 
       return "(<exprToStr(e, withThis)>)";    
-    // etc.
     
     default: throw "Unsupported expression <e>";
   }
